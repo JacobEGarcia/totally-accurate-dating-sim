@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Totally Accurate Dating Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{--manila:#E4D5B5;--manila2:#DCCDA9;--paper:#F4EDDA;--ink:#2E2A22;--soft:#7C6F55;--stamp:#B3402A;--hair:#C7B78F}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--manila);color:var(--ink);font-family:'Courier Prime',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:34px 18px 56px;
+background-image:repeating-linear-gradient(0deg,transparent 0 31px,rgba(46,42,34,.045) 31px 32px)}
+.bureau{font-family:'Special Elite',monospace;font-size:11px;letter-spacing:.34em;color:var(--soft);text-transform:uppercase}
+h1{font-family:'Special Elite',monospace;font-size:clamp(21px,3.6vw,30px);letter-spacing:.06em;margin-top:10px;text-align:center}
+h1 .u{border-bottom:3px double var(--ink)}
+.sub{color:var(--soft);font-size:12px;margin-top:8px;font-style:italic}
+.stamp-row{margin:14px 0 4px;font-family:'Special Elite',monospace;font-size:10px;letter-spacing:.28em;color:var(--stamp);border:2px solid var(--stamp);border-radius:4px;padding:5px 14px;transform:rotate(-2deg);text-transform:uppercase;opacity:.85}
+#profile{width:min(500px,94vw);margin:22px 0 16px;background:var(--paper);border:1px solid var(--hair);border-radius:3px;padding:28px 30px 24px;text-align:center;box-shadow:3px 4px 0 rgba(46,42,34,.18);position:relative}
+#profile::before{content:"FORM 27-B";position:absolute;top:10px;left:14px;font-size:9px;letter-spacing:.3em;color:var(--soft)}
+#profile::after{content:"COMPATIBILITY BUREAU";position:absolute;top:10px;right:14px;font-size:9px;letter-spacing:.2em;color:var(--soft)}
+#face{width:120px;height:120px;margin:8px auto 0;border:1.5px solid var(--ink);border-radius:2px;background:var(--manila2);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 4px var(--paper)}
+#face svg{width:88px;height:88px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#face svg .fill-ink{fill:var(--ink);stroke:none}
+#face svg .red{stroke:var(--stamp)}
+#face svg .fill-red{fill:var(--stamp);stroke:none}
+.photo-cap{font-size:9px;letter-spacing:.3em;color:var(--soft);margin-top:6px;text-transform:uppercase}
+#name{font-family:'Special Elite',monospace;font-size:20px;margin-top:14px}
+#bio{font-size:13.5px;line-height:1.75;color:var(--ink);margin-top:12px;min-height:74px;max-width:40ch;margin-left:auto;margin-right:auto}
+#flags{font-size:11px;color:var(--soft);margin-top:12px;line-height:1.8;border-top:1px dashed var(--hair);padding-top:10px}
+#flags::before{content:"KNOWN FLAGS: ";color:var(--stamp);letter-spacing:.1em}
+#row{display:flex;gap:14px;justify-content:center;margin-top:20px}
+button{cursor:pointer;font-family:'Special Elite',monospace;font-size:13px;letter-spacing:.2em;padding:13px 36px;border-radius:3px;transition:.12s;text-transform:uppercase}
+#like{background:var(--stamp);color:var(--paper);border:2px solid var(--stamp)}
+#like:hover{background:transparent;color:var(--stamp)}
+#pass{background:transparent;border:2px solid var(--ink);color:var(--ink)}
+#pass:hover{background:var(--ink);color:var(--paper)}
+button:active{transform:translateY(2px)}
+#hud{font-family:'Special Elite',monospace;font-size:11px;letter-spacing:.2em;color:var(--soft);text-align:center;text-transform:uppercase}
+#hud b{color:var(--stamp)}
+#msg{margin-top:10px;font-size:12px;font-style:italic;color:var(--soft);min-height:20px;text-align:center}
+.foot{margin-top:30px;font-size:10px;letter-spacing:.26em;color:var(--soft);text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="bureau">Municipal Compatibility Bureau &middot; Est. 1977</div>
+<h1>TOTALLY ACCURATE <span class="u">DATING</span> SIMULATOR</h1>
+<div class="sub">every profile is 100% realistic</div>
+<div class="stamp-row">Certified accurate</div>
+<div id="profile">
+  <div id="face"></div>
+  <div class="photo-cap">Applicant portrait &middot; do not bend</div>
+  <div id="name"></div>
+  <div id="bio"></div>
+  <div id="flags"></div>
+  <div id="row"><button id="pass">Pass</button><button id="like">Like</button></div>
+</div>
+<div id="hud">Liked <b id="liked">0</b> &middot; Passed <b id="passed">0</b> &middot; Hopes <b id="hopes">High</b></div>
+<div id="msg"></div>
+<div class="foot">The bureau is not responsible for outcomes</div>
+<script>
+const FACES=[
+'<path d="M20 74 L44 30 L58 52 L68 34 L88 74 Z"/><circle cx="44" cy="22" r="5"/><path d="M44 27 v10" class="red"/>',
+'<path d="M28 78 q16 -60 32 0 Z"/><path d="M36 44 q8 -10 16 0" /><circle cx="38" cy="52" r="2.4" class="fill-red"/><circle cx="50" cy="52" r="2.4" class="fill-red"/><path d="M40 64 l3 5 3 -5" class="red"/>',
+'<rect x="24" y="30" width="40" height="34" rx="4"/><circle cx="36" cy="45" r="4"/><circle cx="52" cy="45" r="4"/><path d="M36 56 h16 M44 30 v-10 M40 20 h8" /><path d="M28 64 h32 v10 h-32 z" class="red"/>',
+'<path d="M22 50 q22 -26 44 0 q-22 26 -44 0 Z"/><circle cx="34" cy="48" r="3" class="fill-ink"/><path d="M66 50 l12 -8 v16 Z"/><path d="M40 42 q6 8 0 16 M48 42 q6 8 0 16" />',
+'<path d="M30 40 l6 -12 8 10 8 -10 6 12 Z"/><path d="M30 40 v6 h28 v-6"/><circle cx="38" cy="58" r="3"/><circle cx="50" cy="58" r="3"/><path d="M38 68 q6 5 12 0"/>',
+'<path d="M38 78 v-44"/><path d="M38 52 q-14 0 -14 -14 M38 60 q14 0 14 -14"/><path d="M30 78 h16"/><circle cx="34" cy="40" r="1.6" class="fill-ink"/><circle cx="42" cy="40" r="1.6" class="fill-ink"/>',
+'<path d="M24 44 h40"/><path d="M30 44 q0 -16 14 -16 q14 0 14 16"/><rect x="30" y="50" width="28" height="12" rx="6" class="fill-ink"/><path d="M34 68 h20" class="red"/>',
+'<path d="M44 20 L26 58 h36 Z"/><path d="M30 78 q14 -8 28 0"/><circle cx="44" cy="46" r="2.4" class="fill-ink"/><path d="M52 60 q10 2 12 12" class="red"/>'
+];
+const P=[
+[0,"Dana, 31","Adventure-seeking. Loves long walks (documented, uphill). Looking for a partner in crime (white collar only).","owns 4 headlamps, says 'bruh' sincerely"],
+[1,"Viktor, 247","Old soul. Night owl. Allergic to garlic, sunlight, and follow-up questions. Enjoys long-standing mirror disputes.","great listener, estate has 'character'"],
+[2,"CL1FF, 3 (in robot years)","Emotionally available since firmware 2.1. Loves long charges on the beach. Will remember your birthday. Literally cannot forget it.","100% consistent texting, runs hot"],
+[3,"Gill, 28","Just a normal human man who loves moisture. Hobby: being near water. Favorite food: water.","extremely hydrated, blinks rarely"],
+[4,"Princess Anastasia (real)","Recently deposed, needs a small loan and a big love. Owns a boat (metaphorical). Family is 'in transition.'","has a butler, butler has opinions"],
+[5,"Spike, 40","Low maintenance. Thrives on neglect. Will not text back, which is a green flag if you think about it.","great boundaries, photosynthesizes"],
+[6,"Anonymous, ??","Cannot share job, name origin, or why they know your coffee order. Very loyal. Very.","punctual, knows things"],
+[7,"Merle, 60","Wizard-adjacent. Looking for someone to quest with (grocery store, DMV). Owns 200 dice, all emotional.","cooks one (1) legendary stew"]
+];
+let i=0,liked=0,passed=0;
+const $=id=>document.getElementById(id);
+function show(){
+  const p=P[i%P.length];
+  $('face').innerHTML='<svg viewBox="0 0 88 96">'+FACES[p[0]]+'</svg>';
+  $('name').textContent=p[1];$('bio').textContent=p[2];$('flags').textContent=p[3];
+}
+function next(like){
+  if(like){liked++;$('liked').textContent=liked;
+    const m=["they liked you back! (this is a simulation)","it's a match! they have 14 other matches","match! their first message is 'hey'"];
+    $('msg').textContent=m[Math.floor(Math.random()*m.length)];
+  }else{passed++;$('passed').textContent=passed;
+    const m=["passed. they will never know","passed. their butler disapproves","passed. statistically wise"];
+    $('msg').textContent=m[Math.floor(Math.random()*m.length)];
+  }
+  const total=liked+passed;
+  $('hopes').textContent=liked>=3?'DASHED':total>=6?'CAUTIOUS':'HIGH';
+  i++;show();
+}
+$('like').onclick=()=>next(true);
+$('pass').onclick=()=>next(false);
+show();
+</script>
+</body>
+</html>
